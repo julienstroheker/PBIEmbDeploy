@@ -35,22 +35,22 @@ if ($authentication)
 
 try {
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creation of the resource group..."
-  $output = azure group create -n $ResourceGroupName -l $Location
+  azure group create -n $ResourceGroupName -l $Location >> outputLogs.txt
   Write-Host -BackgroundColor Black -ForegroundColor Green "Resource group : $ResourceGroupName created in $Location"
 
   $templateParameters = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"}}'
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Deployment of the resources on Azure..."
-  $output = azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"
+  azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"  >> outputLogs.txt
   Write-Host -BackgroundColor Black -ForegroundColor Green "Deployment of $PrefixName-$PrefixNameEnv-PBI done..."
 
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Getting and storing access key..."
-  $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json
+  $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json  >> outputLogs.txt
   $accesKeyPBIJSON = '[' + $accesKeyPBIJSON + ']' | ConvertFrom-Json
   $accesKeyPBI = $accesKeyPBIJSON.key1
   Write-Host -BackgroundColor Black -ForegroundColor Green "Acces Key stored : $accesKeyPBI"
   
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creating of the workspace..."
-  $cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI
+  $cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI  >> outputLogs.txt
   $WSguid = $cmdCreateWSOutput.Replace("[ powerbi ] Workspace created: ", "")
   Write-Host -BackgroundColor Black -ForegroundColor Green "Workspace with the following GUID created : $WSguid"
 
@@ -61,7 +61,7 @@ try {
   $filePath = "./myReport/" + $basename[0].Name
   $fileName = $basename[0].BaseName
 
-  $output = powerbi import -c $PrefixName-$PrefixNameEnv-PBI -w $WSguid -k $accesKeyPBI.key1 -n "$fileName" -f "$filePath"
+  $output = powerbi import -c $PrefixName-$PrefixNameEnv-PBI -w $WSguid -k $accesKeyPBI.key1 -n "$fileName" -f "$filePath"  >> outputLogs.txt
   Write-Host -BackgroundColor Black -ForegroundColor Green "PBIX Imported : $fileName"
 
   Write-Host -BackgroundColor Black -ForegroundColor Green "###### Script done ######"
