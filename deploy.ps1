@@ -32,7 +32,7 @@ if ($authentication)
 Write-Host -BackgroundColor Black -ForegroundColor Green "Creation of the resource group..."
 azure group create -n $ResourceGroupName -l $Location
 
-$templateParameters = '{\"PrefixName\":{\"value\":\"$PrefixName\"},\"PrefixNameEnv\":{\"value\":\"$PrefixNameEnv\"}}'
+$templateParameters = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"}}'
 Write-Host -BackgroundColor Black -ForegroundColor Green "Deployment of the resources..."
 azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"
 
