@@ -1,11 +1,14 @@
 # PBIEmbDeploy
-This Powershell script xplat allow you to :
+
+This Powershell script allow you to :
 * Install the Azure CLI and PowerBI CLI on your machine
 * Deploy a new Power BI Embedded resource on your Azure Subscription
 * Create a Workspace in the PBI Collection
 * Import a PBIX file (Only One for now)
 
 All in one command, the deploy.ps1 file.
+
+[PowerShell](https://github.com/PowerShell/PowerShell) is Xplat, so you can run this script from a Unix or Windows Environnement, tested on a Mac and Windows.
 
 ## Usage
 
@@ -26,8 +29,9 @@ Example :
 ## Prerequisites
 
 You need to have installed on your machine :
-* NPM (NodeJS)
-* Azure-CLI
-* PowerBI-CLI
+* [PowerShell](https://github.com/PowerShell/PowerShell) 
+* [NPM (NodeJS)](https://nodejs.org/en/download/)
+* [Azure-CLI](https://github.com/Azure/azure-xplat-cli)
+* [PowerBI-CLI](https://github.com/Microsoft/PowerBI-Cli)
 
 > Note : You can run `./deploy.ps1 -Prerequisites 1` to install the Azure-CLI and PowerBI-CLI packages on your machine.
