@@ -18,35 +18,41 @@ cls
 Write-Host -BackgroundColor Black -ForegroundColor Green "##### Script launched ###### "
 if ($prerequisites)
 {
-  Write-Host -BackgroundColor Black -ForegroundColor Green "Installing the NPM Packages..."
-  npm install azure-cli -g
-  npm install powerbi-cli -g
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Installing the NPM Packages..."
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Installing Azure-CLI"
+  $output = npm install azure-cli -g
+  Write-Host -BackgroundColor Black -ForegroundColor Green "Azure-CLI Installed"
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Installing PowerBI-CLI"
+  $output = npm install powerbi-cli -g
+  Write-Host -BackgroundColor Black -ForegroundColor Green "PowerBI-CLI Installed"
 }
 if ($authentication)
 {
-  Write-Host -BackgroundColor Black -ForegroundColor Green "Authentication on Azure selected..."
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Authentication on Azure selected..."
   azure login
+  Write-Host -BackgroundColor Black -ForegroundColor Green "Authentication on Azure done"
 }
 
 try {
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creation of the resource group..."
-  azure group create -n $ResourceGroupName -l $Location
+  $output = azure group create -n $ResourceGroupName -l $Location
   Write-Host -BackgroundColor Black -ForegroundColor Green "Resource group : $ResourceGroupName created in $Location"
 
   $templateParameters = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"}}'
-  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Deployment of the resources..."
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Deployment of the resources on Azure..."
   $output = azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"
   Write-Host -BackgroundColor Black -ForegroundColor Green "Deployment of $PrefixName-$PrefixNameEnv-PBI done..."
 
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Getting and storing access key..."
-  $accesKeyPBI = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json
-  $accesKeyPBI = '[' + $accesKeyPBI + ']' | ConvertFrom-Json
+  $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json
+  $accesKeyPBIJSON = '[' + $accesKeyPBI + ']' | ConvertFrom-Json
+  $accesKeyPBI = $accesKeyPBIJSON.key1
   Write-Host -BackgroundColor Black -ForegroundColor Green "Acces Key stored : $accesKeyPBI"
   
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creating of the workspace..."
-  $cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI.key1
+  $cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI
   $WSguid = $cmdCreateWSOutput.Replace("[ powerbi ] Workspace created: ", "")
-  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Workspace with the following GUID created : $WSguid"
+  Write-Host -BackgroundColor Black -ForegroundColor Green "Workspace with the following GUID created : $WSguid"
 
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Importing the PBIX..."
 
