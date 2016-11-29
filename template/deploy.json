@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "PrefixName": {
+        "type": "string",
+        "metadata": {
+          "description": "Sets the prefix name for the deployment."
+        }
+      },
+      "PrefixNameEnv": {
+        "type": "string",
+        "metadata": {
+          "description": "Sets the prefix for the environnement."
+        }
+      }
+    },
+    "variables": {
+      "PBI_Name": "[concat(parameters('PrefixName'),'-',parameters('PrefixNameEnv'),'-','PBI')]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.PowerBI/workspaceCollections",
+        "sku": {
+          "name": "S1",
+          "tier": "Standard"
+        },
+        "tags": {},
+        "name": "[variables('PBI_Name')]",
+        "apiVersion": "2016-01-29",
+        "location": "[resourceGroup().location]"
+      }
+    ],
+    "outputs": {
+    }
+}
