@@ -38,4 +38,23 @@ azure group deployment create --resource-group $ResourceGroupName --template-uri
 
 Write-Host -BackgroundColor Black -ForegroundColor Green "Deployment done..."
 
+Write-Host -BackgroundColor Black -ForegroundColor Green "Getting and storing access key..."
+$accesKeyPBI = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json | ConvertFrom-Json
+
+Write-Host -BackgroundColor Black -ForegroundColor Green "Creating one workspace..."
+$cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI.key1
+
+$WSguid = $cmdCreateWSOutput[3].Replace("[ powerbi ] ", "")
+
+Write-Host -BackgroundColor Black -ForegroundColor Green "Importing the PBIX..."
+
+$path = "./myReport/*.pbix"
+$basename = gi $path | select basename, Name
+
+powerbi import -c $PrefixName -w $WSguid -k $accesKeyPBI.key1 -n "$basename[0].BaseName" -f "./myReport/$basename[0].Name"
+
+
+
+
+
 
