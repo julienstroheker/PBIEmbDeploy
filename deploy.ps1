@@ -45,7 +45,7 @@ try {
 
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Getting and storing access key..."
   $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json
-  $accesKeyPBIJSON = '[' + $accesKeyPBI + ']' | ConvertFrom-Json
+  $accesKeyPBIJSON = '[' + $accesKeyPBIJSON + ']' | ConvertFrom-Json
   $accesKeyPBI = $accesKeyPBIJSON.key1
   Write-Host -BackgroundColor Black -ForegroundColor Green "Acces Key stored : $accesKeyPBI"
   
