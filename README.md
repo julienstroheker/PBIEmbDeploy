@@ -32,7 +32,7 @@ Example :
 
 > Note : you can use two optional parameters (boolean) when you call the script : Prerequisites and Authentication
 
-> Note : You have to be authenticated on Azure from you machine by using the command : `azure login` or you can run the command with the paramater Authentication at 1
+> Note : You have to be authenticated on Azure from you machine by using the command : `azure login` or you can run the command with the parameter 'Authentication' at 1 like `./deploy.ps1 -Authentication 1 -ResourceGroupName <MyResourceGroup> -Location <Location> -PrefixName <CONTOSO> -PrefixNameEnv <DEV>`
 
 ## Prerequisites
 
@@ -43,7 +43,7 @@ You need to have installed on your machine :
 * [PowerBI-CLI](https://github.com/Microsoft/PowerBI-Cli)
 * [Retail Analysis Sample PBIX Sample - Optional](http://go.microsoft.com/fwlink/?LinkID=780547)
 
-> Note : You can just install manually node and then run `./deploy.ps1 -Prerequisites 1` to install the Azure-CLI and PowerBI-CLI packages on your machine.
+> Note : You can just install manually node and then run `./deploy.ps1 -Prerequisites 1 -ResourceGroupName <MyResourceGroup> -Location <Location> -PrefixName <CONTOSO> -PrefixNameEnv <DEV>` to install the Azure-CLI and PowerBI-CLI packages on your machine.
 
 ## Deploy your own Website code 
 
