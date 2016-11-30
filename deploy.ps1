@@ -40,17 +40,18 @@ try {
 
   $templateParameters = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"}}'
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Deployment of the resources on Azure..."
-  azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"  >> outputLogs.txt
+  azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deploy.json" -p "$templateParameters"
   Write-Host -BackgroundColor Black -ForegroundColor Green "Deployment of $PrefixName-$PrefixNameEnv-PBI done..."
 
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Getting and storing access key..."
-  $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $PrefixName-$PrefixNameEnv-PBI --json  >> outputLogs.txt
-  $accesKeyPBIJSON = '[' + $accesKeyPBIJSON + ']' | ConvertFrom-Json
+  $CollectionName = $PrefixName + "-" + $PrefixNameEnv + "-PBI"
+  $accesKeyPBIJSON = azure powerbi keys list $ResourceGroupName $CollectionName --json
+  $accesKeyPBIJSON = $accesKeyPBIJSON | ConvertFrom-Json
   $accesKeyPBI = $accesKeyPBIJSON.key1
   Write-Host -BackgroundColor Black -ForegroundColor Green "Acces Key stored : $accesKeyPBI"
   
   Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creating of the workspace..."
-  $cmdCreateWSOutput = powerbi create-workspace -c $PrefixName-$PrefixNameEnv-PBI -k $accesKeyPBI  >> outputLogs.txt
+  $cmdCreateWSOutput = powerbi create-workspace -c $CollectionName -k $accesKeyPBI
   $WSguid = $cmdCreateWSOutput.Replace("[ powerbi ] Workspace created: ", "")
   Write-Host -BackgroundColor Black -ForegroundColor Green "Workspace with the following GUID created : $WSguid"
 
@@ -61,8 +62,20 @@ try {
   $filePath = "./myReport/" + $basename[0].Name
   $fileName = $basename[0].BaseName
 
-  $output = powerbi import -c $PrefixName-$PrefixNameEnv-PBI -w $WSguid -k $accesKeyPBI.key1 -n "$fileName" -f "$filePath"  >> outputLogs.txt
+  $output = powerbi import -c $PrefixName-$PrefixNameEnv-PBI -w $WSguid -k $accesKeyPBI -n "$fileName" -f "$filePath"
   Write-Host -BackgroundColor Black -ForegroundColor Green "PBIX Imported : $fileName"
+
+  Write-Host -BackgroundColor Black -ForegroundColor Yellow "Creating the WebApp and applying the parameters for the PBIX..."
+  
+  $powerbiAccessKey = $accesKeyPBI
+  $powerbiWorkspaceCollection = $CollectionName
+  $powerbiWorkspaceId = $WSguid
+
+  $templateParametersWebApp = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"},\"powerbiAccessKey\":{\"value\":\"' + $powerbiAccessKey + '\"},\"powerbiWorkspaceCollection\":{\"value\":\"' + $powerbiWorkspaceCollection + '\"},\"powerbiWorkspaceId\":{\"value\":\"' + $powerbiWorkspaceId + '\"}}'
+
+  azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deployWebApp.json" -p "$templateParametersWebApp"
+  
+  Write-Host -BackgroundColor Black -ForegroundColor Green "WebApp Created : https://$PrefixName-$PrefixNameEnv-site.azurewebsites.net"
 
   Write-Host -BackgroundColor Black -ForegroundColor Green "###### Script done ######"
 }

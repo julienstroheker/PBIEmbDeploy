@@ -1,0 +1,99 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "PrefixName": {
+      "type": "string",
+      "metadata": {
+        "description": "Sets the prefix name for the deployment."
+      }
+    },
+    "PrefixNameEnv": {
+      "type": "string",
+      "metadata": {
+        "description": "Sets the prefix for the environnement."
+      }
+    },
+    "powerbiAccessKey": {
+      "type": "string"
+    },
+    "powerbiWorkspaceCollection": {
+      "type": "string"
+    },
+    "powerbiWorkspaceId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "PBI_Name": "[concat(parameters('PrefixName'),'-',parameters('PrefixNameEnv'),'-','PBI')]",
+    "hostingPlanName": "[concat(parameters('PrefixName'),'-',parameters('PrefixNameEnv'),'-','HostingPlan')]",
+    "webSiteName": "[concat(parameters('PrefixName'),'-',parameters('PrefixNameEnv'),'-','site')]",
+    "skuName": "F1",
+    "skuCapacity" : 1,
+    "repoURL" : "https://github.com/Azure-Samples/power-bi-embedded-integrate-report-into-web-app.git",
+    "branch" : "master"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[variables('skuName')]",
+        "capacity": "[variables('skuCapacity')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "Resource",
+        "displayName": "Website"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "name": "[variables('webSiteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "powerbi:AccessKey": "[parameters('powerbiAccessKey')]",
+            "powerbi:WorkspaceCollection": "[parameters('powerbiWorkspaceCollection')]",
+            "powerbi:WorkspaceId": "[parameters('powerbiWorkspaceId')]"
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[variables('repoURL')]",
+            "branch": "[variables('branch')]",
+            "IsManualIntegration": true
+          }
+        }
+      ]
+    }
+  ]
+}
