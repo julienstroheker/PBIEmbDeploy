@@ -74,7 +74,8 @@ try {
   $templateParametersWebApp = '{\"PrefixName\":{\"value\":\"'+ $PrefixName + '\"},\"PrefixNameEnv\":{\"value\":\"' + $PrefixNameEnv + '\"},\"powerbiAccessKey\":{\"value\":\"' + $powerbiAccessKey + '\"},\"powerbiWorkspaceCollection\":{\"value\":\"' + $powerbiWorkspaceCollection + '\"},\"powerbiWorkspaceId\":{\"value\":\"' + $powerbiWorkspaceId + '\"}}'
 
   azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deployWebApp.json" -p "$templateParametersWebApp"
-  
+  azure group deployment create --resource-group $ResourceGroupName --template-uri "https://raw.githubusercontent.com/julienstroheker/PBIEmbDeploy/master/template/deployWebApp.json" -p "$templateParametersWebApp"
+
   Write-Host -BackgroundColor Black -ForegroundColor Green "WebApp Created : https://$PrefixName-$PrefixNameEnv-site.azurewebsites.net"
 
   Write-Host -BackgroundColor Black -ForegroundColor Green "###### Script done ######"
